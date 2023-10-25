@@ -1,8 +1,14 @@
-export const metadata = {
-  title: 'Create',
-  description: 'This is create blog page.',
-};
+'use client'
+
+import Tiptap from '@/components/tiptap';
+import React from 'react';
 
 export default function CreatePage() {
-  return <h1 className="mt-12 text-center text-3xl font-bold">Create Blog</h1>;
+  const [content, setContent] = React.useState<string>("");
+  const [editorText, setEditorText] = React.useState<string>("");
+  return (
+    <div>
+      <Tiptap content={content} setContent={setContent} editorText={editorText} />
+    </div>
+  );
 }
