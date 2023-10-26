@@ -380,10 +380,11 @@ type TiptapProps = {
   content: string;
   setContent: (content: string) => void;
   editorText: string;
+  setEditorHtml: (contentHtml: string) => void;
 };
 
 function Tiptap(props: TiptapProps) {
-  const { editorText, content, setContent } = props;
+  const { editorText, content, setContent, setEditorHtml} = props;
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -448,6 +449,17 @@ function Tiptap(props: TiptapProps) {
         className="w-full p-3 max-h-[600px] overflow-auto"
         editor={editor}
       />
+      <div className="mx-2">
+        <button
+          className="my-2 mr-6 px-6 py-2 rounded-full ring-red-500 hover:ring-[3px] bg-orange-200 text-black font-semibold"
+          onClick={() => {
+            setEditorHtml(editor?.getHTML() ?? "");
+            console.log("content is: ", editor?.getHTML());
+          }}
+        >
+          Submit
+        </button>
+      </div>
     </div>
   );
 }
