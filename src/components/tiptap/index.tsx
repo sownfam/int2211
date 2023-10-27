@@ -27,6 +27,9 @@ import {
   MenubarTrigger,
 } from './menubar';
 
+import short from 'short-uuid';
+import { httpGet } from '@/modules/next-backend-client/client';
+
 const TableMenu = ({ editor }: any) => [
   {
     id: 1,
@@ -427,6 +430,34 @@ function Tiptap(props: TiptapProps) {
     content,
   });
 
+  const handleSubmit = async () => {
+    const short_id = short.generate();
+    const slug = short_id + "-" + "something"; // TODO: Implement `slug` input?
+    const title = "First blog";
+
+    const arrayCategories = ["Database, Backend"];
+    const categories = arrayCategories.join("-");
+
+    const cover = "https://source.unsplash.com/8xznAGy4HcY/800x400"; // TODO: real cover?
+    const content = editor?.getHTML() ?? "";
+    const insertParams = new URLSearchParams();
+    insertParams.append("id", short_id);
+    insertParams.append("slug", slug);
+    insertParams.append("title", title);
+    insertParams.append("categories", categories);
+    insertParams.append("cover", cover);
+    insertParams.append("content", content);
+
+    const insertResponse = await httpGet("insert-blog", insertParams);
+    if (!insertResponse.ok) {
+      console.error(insertResponse.error);
+    } else {
+      console.log("Inserted successfully!!");
+      console.log(insertResponse.response);
+      // Redirect to blog page
+    }
+  }
+
   useEffect(() => {
     if (editor && editorText) {
       editor
@@ -452,10 +483,7 @@ function Tiptap(props: TiptapProps) {
       <div className="mx-2">
         <button
           className="my-2 mr-6 px-6 py-2 rounded-full ring-red-500 hover:ring-[3px] bg-orange-200 text-black font-semibold"
-          onClick={() => {
-            setEditorHtml(editor?.getHTML() ?? "");
-            console.log("content is: ", editor?.getHTML());
-          }}
+          onClick={handleSubmit}
         >
           Submit
         </button>

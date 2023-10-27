@@ -1,3 +1,5 @@
+import { queryAllPosts } from "@/modules/mysql/main";
+import { httpGet } from "@/modules/next-backend-client/client";
 import { Post } from "@/types/post";
 
 const fakePosts: Post[] = [
@@ -11,5 +13,7 @@ const fakePosts: Post[] = [
 ]
 
 export async function getAllPosts() {
+  const rawPosts = queryAllPosts();
+  console.log(rawPosts);
   return fakePosts;
 }

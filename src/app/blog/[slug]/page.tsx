@@ -1,8 +1,26 @@
-export default async function BlogContent() {
-  //TODO: Props 'html content' here!
-  const value = '<h1><span style="color: #15d198"><strong>Haloo</strong></span></h1><p><span style="color: #15d198"><strong>Welcome</strong></span></p><p style="text-align: center"><span style="color: #276854">My name is Son</span></p>';
+async function getBlogContent(slug: string) {
+  const searchParams = new URLSearchParams();
+  searchParams.append("slug", slug);
+  const fetchPath =
+    "http://localhost:3000" +
+    "/api/query-blog-content" +
+    `?${searchParams.toString()}`;
+  
+  const response = await fetch(fetchPath);
+  const body = await response.text();
+  const data = JSON.parse(body);
+  return data.posts[0][0].content;
+}
+
+export default async function BlogContent({
+  params: { slug },
+}: {
+  params: { slug: string };
+}) {
+  const value = await getBlogContent(slug);
   return (
-    <div dangerouslySetInnerHTML={{__html: value}}>
-    </div>
-  )
+    <>
+      <div dangerouslySetInnerHTML={{ __html: value }}></div>
+    </>
+  );
 }
