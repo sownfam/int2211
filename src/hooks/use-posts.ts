@@ -18,7 +18,7 @@ export default function usePosts(allPosts: Post[]) {
   const allPostsFiltered = useMemo(
     () =>
       allPosts.filter((post) => {
-        if (query && !post.title.includes(query)) { // TODO: Improve searching algorithm?
+        if (query && !post.title.includes(query) && !post.title.includes(query[0].toUpperCase() + query.slice(1))) { // TODO: Improve searching algorithm?
           return false;
         }
 
