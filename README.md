@@ -3,6 +3,8 @@ A blog app using Nextjs and MySQL
 ## Development
 
 - First, using docker to init MYSQL database
+!!! Remember to set corresponding path in .env file
+
 ```bash
 docker compose up
 ```

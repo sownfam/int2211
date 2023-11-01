@@ -2,7 +2,7 @@
 
 # dependencies
 /node_modules
-/database/data
+/database/data/
 /.pnp
 .pnp.js
 package-lock.json
