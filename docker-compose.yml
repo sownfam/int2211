@@ -10,5 +10,5 @@ services:
     ports:
       - "3308:3308"
     volumes:
-      - F:/webapp/int2211/database/init:/docker-entrypoint-initdb.d/:ro
-      - F:/webapp/int2211/database/data:/var/lib/mysql
+      - /Users/user/UET/db/int2211/database/init:/docker-entrypoint-initdb.d/:ro
+      - /Users/user/UET/db/int2211/database/data:/var/lib/mysql
