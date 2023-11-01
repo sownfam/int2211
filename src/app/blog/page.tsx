@@ -13,7 +13,7 @@ export const metadata = {
 };
 
 async function getData() {  
-  const fetchResponse = await fetch("http://localhost:3000/api/query-all-posts");
+  const fetchResponse = await fetch("http://localhost:3000/api/query-all-posts", {cache: 'no-cache'});
   const body = await fetchResponse.text();
   const queryPostsResponse = JSON.parse(body);
   const allPosts = queryPostsResponse.posts[0] as any[];
