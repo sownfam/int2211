@@ -1,39 +1,43 @@
-'use client'
-import './styles.module.scss';
+"use client";
+import "./styles.module.scss";
 
-import { Color } from '@tiptap/extension-color';
-import ListItem from '@tiptap/extension-list-item';
-import TextStyle from '@tiptap/extension-text-style';
+import { Color } from "@tiptap/extension-color";
+import ListItem from "@tiptap/extension-list-item";
+import TextStyle from "@tiptap/extension-text-style";
 // import Table from '@tiptap/extension-table';
 // import TableCell from '@tiptap/extension-table-cell';
 // import TableHeader from '@tiptap/extension-table-header';
 // import TableRow from '@tiptap/extension-table-row';
-import Underline from '@tiptap/extension-underline';
-import Document from '@tiptap/extension-document';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
+import Underline from "@tiptap/extension-underline";
+import Document from "@tiptap/extension-document";
+import Gapcursor from "@tiptap/extension-gapcursor";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
 // import Highlight from '@tiptap/extension-highlight';
-import TextAlign from '@tiptap/extension-text-align';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import React, { useEffect, useState } from 'react';
-import { Icons } from './icons';
+import TextAlign from "@tiptap/extension-text-align";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import React, { useEffect, useState } from "react";
+import { Icons } from "./icons";
 import {
   Menubar,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
   MenubarTrigger,
-} from './menubar';
+} from "./menubar";
 
-import short from 'short-uuid';
-import { httpGet } from '@/modules/next-backend-client/client';
+import short from "short-uuid";
+import { httpGet } from "@/modules/next-backend-client/client";
+import { useRecoilValue } from "recoil";
+import { userAuth } from "@/states/user";
+import { useRouter } from "next/navigation";
+import { Topic } from "@/types/topic";
 
 const TableMenu = ({ editor }: any) => [
   {
     id: 1,
-    name: 'Insert Table',
+    name: "Insert Table",
     action: () =>
       editor
         .chain()
@@ -43,271 +47,271 @@ const TableMenu = ({ editor }: any) => [
   },
   {
     id: 2,
-    name: 'Add Column Before',
+    name: "Add Column Before",
     action: () => editor.chain().focus().addColumnBefore().run(),
   },
   {
     id: 3,
-    name: 'Add Column After',
+    name: "Add Column After",
     action: () => editor.chain().focus().addColumnAfter().run(),
   },
   {
     id: 4,
-    name: 'Delete Column',
+    name: "Delete Column",
     action: () => editor.chain().focus().deleteColumn().run(),
   },
   {
     id: 5,
-    name: 'Add Row Before',
+    name: "Add Row Before",
     action: () => editor.chain().focus().addRowBefore().run(),
   },
   {
     id: 6,
-    name: 'Add Row After',
+    name: "Add Row After",
     action: () => editor.chain().focus().addRowAfter().run(),
   },
   {
     id: 7,
-    name: 'Delete Row',
+    name: "Delete Row",
     action: () => editor.chain().focus().deleteRow().run(),
   },
   {
     id: 8,
-    name: 'Delete Table',
+    name: "Delete Table",
     action: () => editor.chain().focus().deleteTable().run(),
   },
   {
     id: 9,
-    name: 'Merge Cells',
+    name: "Merge Cells",
     action: () => editor.chain().focus().mergeCells().run(),
   },
   {
     id: 11,
-    name: 'Toggle Header Column',
+    name: "Toggle Header Column",
     action: () => editor.chain().focus().toggleHeaderColumn().run(),
   },
   {
     id: 12,
-    name: 'Toggle Header Row',
+    name: "Toggle Header Row",
     action: () => editor.chain().focus().toggleHeaderRow().run(),
   },
   {
     id: 13,
-    name: 'Toggle Header Cell',
+    name: "Toggle Header Cell",
     action: () => editor.chain().focus().toggleHeaderCell().run(),
   },
   {
     id: 14,
-    name: 'Merge Or Split',
+    name: "Merge Or Split",
     action: () => editor.chain().focus().mergeOrSplit().run(),
   },
   {
     id: 15,
-    name: 'Set Cell Attribute',
-    action: () => editor.chain().focus().setCellAttribute('colspan', 2).run(),
+    name: "Set Cell Attribute",
+    action: () => editor.chain().focus().setCellAttribute("colspan", 2).run(),
   },
 ];
 
 const MenuBarIcon = ({ editor }: any) => [
   {
     id: 1,
-    name: 'bold',
+    name: "bold",
     icon: Icons.bold,
     onClick: () => editor.chain().focus().toggleBold().run(),
     disable: !editor.can().chain().focus().toggleBold().run(),
-    isActive: editor.isActive('bold') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("bold") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 2,
-    name: 'italic',
+    name: "italic",
     icon: Icons.italic,
     onClick: () => editor.chain().focus().toggleItalic().run(),
     disable: !editor.can().chain().focus().toggleItalic().run(),
-    isActive: editor.isActive('italic') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("italic") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 21,
-    name: 'underline',
+    name: "underline",
     icon: Icons.underline,
     onClick: () => editor.chain().focus().toggleUnderline().run(),
     disable: false,
-    isActive: editor.isActive('underline') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("underline") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 3,
-    name: 'strike',
+    name: "strike",
     icon: Icons.strikethrough,
     onClick: () => editor.chain().focus().toggleStrike().run(),
     disable: !editor.can().chain().focus().toggleStrike().run(),
-    isActive: editor.isActive('strike') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("strike") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 4,
-    name: 'code',
+    name: "code",
     icon: Icons.code,
     onClick: () => editor.chain().focus().toggleCode().run(),
     disable: !editor.can().chain().focus().toggleCode().run(),
-    isActive: editor.isActive('code') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("code") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 5,
-    name: 'heading1',
+    name: "heading1",
     icon: Icons.h1,
     onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     disable: false,
-    isActive: editor.isActive('heading', { level: 1 })
-      ? 'is-active text-green-700'
-      : '',
+    isActive: editor.isActive("heading", { level: 1 })
+      ? "is-active text-green-700"
+      : "",
     hover: false,
   },
   {
     id: 6,
-    name: 'heading2',
+    name: "heading2",
     icon: Icons.h2,
     onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
     disable: false,
-    isActive: editor.isActive('heading', { level: 2 })
-      ? 'is-active text-green-700'
-      : '',
+    isActive: editor.isActive("heading", { level: 2 })
+      ? "is-active text-green-700"
+      : "",
     hover: false,
   },
   {
     id: 13,
-    name: 'heading3',
+    name: "heading3",
     icon: Icons.h3,
     onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
     disable: false,
-    isActive: editor.isActive('heading', { level: 3 })
-      ? 'is-active text-green-700'
-      : '',
+    isActive: editor.isActive("heading", { level: 3 })
+      ? "is-active text-green-700"
+      : "",
     hover: false,
   },
   {
     id: 14,
-    name: 'heading4',
+    name: "heading4",
     icon: Icons.h4,
     onClick: () => editor.chain().focus().toggleHeading({ level: 4 }).run(),
     disable: false,
-    isActive: editor.isActive('heading', { level: 4 })
-      ? 'is-active text-green-700'
-      : '',
+    isActive: editor.isActive("heading", { level: 4 })
+      ? "is-active text-green-700"
+      : "",
     hover: false,
   },
   {
     id: 15,
-    name: 'heading5',
+    name: "heading5",
     icon: Icons.h5,
     onClick: () => editor.chain().focus().toggleHeading({ level: 5 }).run(),
     disable: false,
-    isActive: editor.isActive('heading', { level: 5 })
-      ? 'is-active text-green-700'
-      : '',
+    isActive: editor.isActive("heading", { level: 5 })
+      ? "is-active text-green-700"
+      : "",
     hover: false,
   },
   {
     id: 7,
-    name: 'paragraph',
+    name: "paragraph",
     icon: Icons.paragraph,
     onClick: () => editor.chain().focus().setParagraph().run(),
     disable: false,
-    isActive: editor.isActive('paragraph') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("paragraph") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 8,
-    name: 'bullet list',
+    name: "bullet list",
     icon: Icons.ul,
     onClick: () => editor.chain().focus().toggleBulletList().run(),
     disable: false,
-    isActive: editor.isActive('bulletList')
-      ? 'is-active text-green-700 list-disc'
-      : '',
+    isActive: editor.isActive("bulletList")
+      ? "is-active text-green-700 list-disc"
+      : "",
     hover: false,
   },
   {
     id: 9,
-    name: 'ordered list',
+    name: "ordered list",
     icon: Icons.ol,
     onClick: () => editor.chain().focus().toggleOrderedList().run(),
     disable: false,
-    isActive: editor.isActive('orderedList')
-      ? 'is-active text-green-700 list-decimal'
-      : '',
+    isActive: editor.isActive("orderedList")
+      ? "is-active text-green-700 list-decimal"
+      : "",
     hover: false,
   },
   {
     id: 20,
-    name: 'highlight',
+    name: "highlight",
     icon: Icons.bg,
     onClick: () => editor.chain().focus().toggleHighlight().run(),
     disable: false,
-    isActive: editor.isActive('highlight') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("highlight") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 16,
-    name: 'align left',
+    name: "align left",
     icon: Icons.alignLeft,
-    onClick: () => editor.chain().focus().setTextAlign('left').run(),
+    onClick: () => editor.chain().focus().setTextAlign("left").run(),
     disable: false,
-    isActive: editor.isActive({ textAlign: 'left' }) ? 'is-active' : '',
+    isActive: editor.isActive({ textAlign: "left" }) ? "is-active" : "",
     hover: false,
   },
   {
     id: 17,
-    name: 'align center',
+    name: "align center",
     icon: Icons.alignCenter,
-    onClick: () => editor.chain().focus().setTextAlign('center').run(),
+    onClick: () => editor.chain().focus().setTextAlign("center").run(),
     disable: false,
-    isActive: editor.isActive({ textAlign: 'center' })
-      ? 'is-active text-green-700 text-center'
-      : '',
+    isActive: editor.isActive({ textAlign: "center" })
+      ? "is-active text-green-700 text-center"
+      : "",
     hover: false,
   },
   {
     id: 18,
-    name: 'align right',
+    name: "align right",
     icon: Icons.alignRight,
-    onClick: () => editor.chain().focus().setTextAlign('right').run(),
+    onClick: () => editor.chain().focus().setTextAlign("right").run(),
     disable: false,
-    isActive: editor.isActive({ textAlign: 'right' }) ? 'is-active' : '',
+    isActive: editor.isActive({ textAlign: "right" }) ? "is-active" : "",
     hover: false,
   },
   {
     id: 19,
-    name: 'align justify',
+    name: "align justify",
     icon: Icons.alignJustify,
-    onClick: () => editor.chain().focus().setTextAlign('justify').run(),
+    onClick: () => editor.chain().focus().setTextAlign("justify").run(),
     disable: false,
-    isActive: editor.isActive({ textAlign: 'justify' }) ? 'is-active' : '',
+    isActive: editor.isActive({ textAlign: "justify" }) ? "is-active" : "",
     hover: false,
   },
   {
     id: 10,
-    name: 'code block',
+    name: "code block",
     icon: Icons.codeblock,
     onClick: () => editor.chain().focus().toggleCodeBlock().run(),
     disable: false,
-    isActive: editor.isActive('codeBlock') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("codeBlock") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 11,
-    name: 'blockquote',
+    name: "blockquote",
     icon: Icons.blockquote,
     onClick: () => editor.chain().focus().toggleBlockquote().run(),
     disable: false,
-    isActive: editor.isActive('blockquote') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("blockquote") ? "is-active text-green-700" : "",
     hover: false,
   },
   {
     id: 12,
-    name: 'table',
+    name: "table",
     icon: Icons.table,
     onClick: () =>
       editor
@@ -316,7 +320,7 @@ const MenuBarIcon = ({ editor }: any) => [
         .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
         .run(),
     disable: false,
-    isActive: editor.isActive('table') ? 'is-active text-green-700' : '',
+    isActive: editor.isActive("table") ? "is-active text-green-700" : "",
     hover: true,
   },
 ];
@@ -335,7 +339,7 @@ function MenuBar({ editor }: any) {
         onInput={(event: any) =>
           editor.chain().focus().setColor(event.target.value).run()
         }
-        value={editor.getAttributes('textStyle').color}
+        value={editor.getAttributes("textStyle").color}
       />
       {MenuBarIconValue.map((item) =>
         item.hover ? (
@@ -347,7 +351,7 @@ function MenuBar({ editor }: any) {
                   // onClick={item.onClick}
                   disabled={item.disable}
                   className={`${
-                    item.disable ? 'cursor-not-allowed' : 'cursor-pointer'
+                    item.disable ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
                   <item.icon />
@@ -368,8 +372,8 @@ function MenuBar({ editor }: any) {
             onClick={item.onClick}
             disabled={item.disable}
             className={`${
-              item.disable ? 'cursor-not-allowed' : 'cursor-pointer'
-            } + ${item.isActive ? item.isActive : ''}`}
+              item.disable ? "cursor-not-allowed" : "cursor-pointer"
+            } + ${item.isActive ? item.isActive : ""}`}
           >
             <item.icon />
           </button>
@@ -384,10 +388,13 @@ type TiptapProps = {
   setContent: (content: string) => void;
   editorText: string;
   setEditorHtml: (contentHtml: string) => void;
+  blogTitle: string;
+  topic: Topic[];
 };
 
 function Tiptap(props: TiptapProps) {
-  const { editorText, content, setContent, setEditorHtml} = props;
+  const { editorText, content, setContent, setEditorHtml, blogTitle, topic } = props;
+  const { username, userID } = useRecoilValue(userAuth);
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -403,11 +410,11 @@ function Tiptap(props: TiptapProps) {
         },
       }),
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ["heading", "paragraph"],
       }),
       Underline.configure({
         HTMLAttributes: {
-          class: 'my-custom-class',
+          class: "my-custom-class",
         },
       }),
       // Highlight,
@@ -424,39 +431,56 @@ function Tiptap(props: TiptapProps) {
     ],
     editorProps: {
       attributes: {
-        class: 'm-2 focus:outline-none',
+        class: "m-2 focus:outline-none",
       },
     },
     content,
   });
+  const router = useRouter();
 
   const handleSubmit = async () => {
+    if(userID === "") {
+      alert("Please log in first");
+      router.push("/login");
+    }
+    // TODO: Categories...
     const short_id = short.generate();
-    const slug = short_id + "-" + "something"; // TODO: Implement `slug` input?
-    const title = "First blog";
+    const slug = short_id + "-" + "something"; // TODO: Implement `slug` input (low priority)?
+    const title = blogTitle;
 
-    const arrayCategories = ["Database, Backend"];
-    const categories = arrayCategories.join("-");
-
-    const cover = "https://source.unsplash.com/8xznAGy4HcY/800x400"; // TODO: real cover?
+    // // const cover = "https://source.unsplash.com/8xznAGy4HcY/800x400"; // TODO: real cover?
+    const cover = `https://source.unsplash.com/random/800x400/?code&${short_id}`
     const content = editor?.getHTML() ?? "";
     const insertParams = new URLSearchParams();
-    insertParams.append("id", short_id);
+    insertParams.append("author", userID);
     insertParams.append("slug", slug);
     insertParams.append("title", title);
-    insertParams.append("categories", categories);
     insertParams.append("cover", cover);
     insertParams.append("content", content);
 
     const insertResponse = await httpGet("insert-blog", insertParams);
     if (!insertResponse.ok) {
       console.error(insertResponse.error);
+      alert(insertResponse.error);
     } else {
       console.log("Inserted successfully!!");
-      console.log(insertResponse.response);
-      // Redirect to blog page
+      console.log(insertResponse.response[0].insertId);
+      const insertedBlogId = insertResponse.response[0].insertId;
+      const topicIDs = topic.map((t) => t.topicID);
+      const insertParams = new URLSearchParams();
+      insertParams.append("blogId", insertedBlogId);
+      topicIDs.forEach((t) => insertParams.append("topicIds", t.toString()));
+      const insertTopicResponse = await httpGet("insert-blog-topic", insertParams);
+
+      if (!insertTopicResponse.ok) {
+        alert(insertTopicResponse.error);
+      } else {
+        console.log(insertResponse.response);
+        console.log("How the fuk this works?");
+        router.push("/blog");
+      }
     }
-  }
+  };
 
   useEffect(() => {
     if (editor && editorText) {

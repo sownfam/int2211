@@ -1,29 +1,43 @@
-'use client'
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { useRecoilState } from "recoil";
 import { userAuth } from "@/states/user";
 import { useState } from "react";
-import short from 'short-uuid';
+import short from "short-uuid";
+import { httpGet } from "@/modules/next-backend-client/client";
 
 export default function Login() {
-
-  const [userInfo, setUserInfo] = useRecoilState(userAuth);
+  const [_userInfo, setUserInfo] = useRecoilState(userAuth);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const handleLogin = () => {
-    const userID = short.generate();
+  const handleLogin = async () => {
+    const userID = "user" + "-" + short.generate();
     if (username === "" || password === "") {
       alert("User name or password should not be empty");
       return;
     }
-    setUserInfo({
-      username: username,
-      userID: "user" + "-" + userID,
-    });
-    // @DangThanhWang insert into database?
-    
-  }
+
+    const insertParams = new URLSearchParams();
+    insertParams.append("username", username);
+    insertParams.append("password", password); // NOTE: Maybe encrypt it using key and then send back to BE, this has 0% security!
+    insertParams.append("userID", userID);
+
+    const insertResponse = await httpGet("insert-user", insertParams);
+    if (!insertResponse.ok) {
+      console.error(insertResponse.error);
+      alert(insertResponse.error);
+    } else {
+      if (insertResponse.response.logged) {
+        setUserInfo({ 
+          username: insertResponse.response.info[0].username,
+          userID: insertResponse.response.info[0].userID,
+        });
+      } else {
+        setUserInfo({ username, userID });
+      }
+    }
+  };
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden">
       <div className="w-full p-6 bg-white rounded-md shadow-xl lg:max-w-xl border">
@@ -49,7 +63,9 @@ export default function Login() {
             </label>
             <input
               type="username"
-              onChange={(e) => {setUsername(e.target.value)}}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
               className="block w-full px-2 py-2 mt-2 text-gray-700 bg-white border rounded-lg focus:border-gray-800 focus:ring-gray-300"
             />
           </div>
@@ -62,7 +78,9 @@ export default function Login() {
             </label>
             <input
               type="password"
-              onChange={(e) => {setPassword(e.target.value)}}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
               className="block w-full px-2 py-2 mt-2 mb-2 text-gray-700 bg-white border rounded-lg focus:border-gray-800 focus:ring-gray-300"
             />
           </div>
@@ -74,7 +92,10 @@ export default function Login() {
           </Link>
           <div className="mt-2">
             <Link href={"/"}>
-              <button className="w-full px-4 py-2 font-bold text-white bg-gray-700 rounded-md hover:bg-gray-500" onClick={handleLogin}>
+              <button
+                className="w-full px-4 py-2 font-bold text-white bg-gray-700 rounded-md hover:bg-gray-500"
+                onClick={handleLogin}
+              >
                 Login
               </button>
             </Link>

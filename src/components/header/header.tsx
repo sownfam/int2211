@@ -11,6 +11,9 @@ const NAV_ITEMS = [
   { path: 'login', name: 'Login' },
 ];
 
+// TODO (low priority):
+// 1. Disable Login when logged in
+// 2. In Guest mode, Create Blog will lead to Login
 export default function Header() {
   const { username } = useRecoilValue(userAuth);
   return (

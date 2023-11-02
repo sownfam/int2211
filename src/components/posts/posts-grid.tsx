@@ -28,7 +28,7 @@ export default function PostsGrid({ allPosts }: { allPosts: Post[] }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-10 text-center text-lg">No matching posts found</p>
+        <p className="mt-10 text-center text-lg">You have no blog yet</p>
       )}
       <Paginate totalPages={totalPages} elementToScroll={rootRef.current} />
     </section>
