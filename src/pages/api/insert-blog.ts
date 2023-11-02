@@ -6,10 +6,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { id, slug, title, categories, cover, content } = req.query;
+  const { author, slug, title, cover, content } = req.query;
 
-  if (id == null || Array.isArray(id)) {
-    res.status(400).json({ error: "Wrong input format in ID", ok: false });
+  if (author == null || Array.isArray(author)) {
+    res.status(400).json({ error: "Wrong input format in author", ok: false });
     return;
   }
 
@@ -20,11 +20,6 @@ export default async function handler(
 
   if (title == null || Array.isArray(title)) {
     res.status(400).json({ error: "Wrong input format in title", ok: false });
-    return;
-  }
-
-  if (categories == null || Array.isArray(categories)) {
-    res.status(400).json({ error: "Wrong input format in categories", ok: false });
     return;
   }
 
@@ -39,7 +34,8 @@ export default async function handler(
   }
 
   try {
-    const result = await insertBlog(id, slug, title, categories, cover, content);
+    console.log("AUTHOR IS: ", author);
+    const result = await insertBlog(author, slug, title, cover, content);
 
     /**
      * The `result` here has the following format:
@@ -49,9 +45,9 @@ export default async function handler(
      */
     console.log("RESULT AFTER INSERT: ", result);
 
-    res.status(200).json({ response: "okay you doing great", ok: true });
+    res.status(200).json({ response: result, ok: true });
   } catch (error) {
     console.warn(error);
-    res.status(500).json({ error: "Interal server error" });
+    res.status(500).json({ error: "Something wrong when insert blog into database" });
   }
 }
