@@ -32,7 +32,7 @@ export default async function handler(
      * Since `insertId` is of type `bigint`, it causes explosion when parsing JSON
      * => We need a bignum JSON parsing (we already did it with TEIKI????) (or just leave it!)
      */
-    console.log("RESULT AFTER INSERT: ", result);
+    console.log("RESULT AFTER INSERT USER: ", result);
 
     res.status(200).json({ response: result, ok: true });
   } catch (error) {

@@ -13,11 +13,12 @@ import Document from "@tiptap/extension-document";
 import Gapcursor from "@tiptap/extension-gapcursor";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
-// import Highlight from '@tiptap/extension-highlight';
+import Highlight from '@tiptap/extension-highlight';
 import TextAlign from "@tiptap/extension-text-align";
+import Image from "@tiptap/extension-image";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Icons } from "./icons";
 import {
   Menubar,
@@ -33,84 +34,6 @@ import { useRecoilValue } from "recoil";
 import { userAuth } from "@/states/user";
 import { useRouter } from "next/navigation";
 import { Topic } from "@/types/topic";
-
-const TableMenu = ({ editor }: any) => [
-  {
-    id: 1,
-    name: "Insert Table",
-    action: () =>
-      editor
-        .chain()
-        .focus()
-        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-        .run(),
-  },
-  {
-    id: 2,
-    name: "Add Column Before",
-    action: () => editor.chain().focus().addColumnBefore().run(),
-  },
-  {
-    id: 3,
-    name: "Add Column After",
-    action: () => editor.chain().focus().addColumnAfter().run(),
-  },
-  {
-    id: 4,
-    name: "Delete Column",
-    action: () => editor.chain().focus().deleteColumn().run(),
-  },
-  {
-    id: 5,
-    name: "Add Row Before",
-    action: () => editor.chain().focus().addRowBefore().run(),
-  },
-  {
-    id: 6,
-    name: "Add Row After",
-    action: () => editor.chain().focus().addRowAfter().run(),
-  },
-  {
-    id: 7,
-    name: "Delete Row",
-    action: () => editor.chain().focus().deleteRow().run(),
-  },
-  {
-    id: 8,
-    name: "Delete Table",
-    action: () => editor.chain().focus().deleteTable().run(),
-  },
-  {
-    id: 9,
-    name: "Merge Cells",
-    action: () => editor.chain().focus().mergeCells().run(),
-  },
-  {
-    id: 11,
-    name: "Toggle Header Column",
-    action: () => editor.chain().focus().toggleHeaderColumn().run(),
-  },
-  {
-    id: 12,
-    name: "Toggle Header Row",
-    action: () => editor.chain().focus().toggleHeaderRow().run(),
-  },
-  {
-    id: 13,
-    name: "Toggle Header Cell",
-    action: () => editor.chain().focus().toggleHeaderCell().run(),
-  },
-  {
-    id: 14,
-    name: "Merge Or Split",
-    action: () => editor.chain().focus().mergeOrSplit().run(),
-  },
-  {
-    id: 15,
-    name: "Set Cell Attribute",
-    action: () => editor.chain().focus().setCellAttribute("colspan", 2).run(),
-  },
-];
 
 const MenuBarIcon = ({ editor }: any) => [
   {
@@ -311,17 +234,17 @@ const MenuBarIcon = ({ editor }: any) => [
   },
   {
     id: 12,
-    name: "table",
-    icon: Icons.table,
-    onClick: () =>
-      editor
-        .chain()
-        .focus()
-        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-        .run(),
+    name: "Image",
+    icon: Icons.image,
+    onClick: useCallback(() => {
+        const url = window.prompt("URL");
+        if (url) {
+          editor.chain().focus().setImage({ src: url }).run();
+        }
+      }, [editor]),
     disable: false,
     isActive: editor.isActive("table") ? "is-active text-green-700" : "",
-    hover: true,
+    hover: false,
   },
 ];
 
@@ -357,13 +280,6 @@ function MenuBar({ editor }: any) {
                   <item.icon />
                 </button>
               </MenubarTrigger>
-              <MenubarContent>
-                {TableMenu({ editor }).map((menuItem) => (
-                  <MenubarItem key={menuItem.id} onClick={menuItem.action}>
-                    {menuItem.name}
-                  </MenubarItem>
-                ))}
-              </MenubarContent>
             </MenubarMenu>
           </Menubar>
         ) : (
@@ -393,8 +309,9 @@ type TiptapProps = {
 };
 
 function Tiptap(props: TiptapProps) {
-  const { editorText, content, setContent, setEditorHtml, blogTitle, topic } = props;
-  const { username, userID } = useRecoilValue(userAuth);
+  const { editorText, content, setContent, setEditorHtml, blogTitle, topic } =
+    props;
+  const { userID } = useRecoilValue(userAuth);
   const editor = useEditor({
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -417,11 +334,14 @@ function Tiptap(props: TiptapProps) {
           class: "my-custom-class",
         },
       }),
-      // Highlight,
+      Highlight,
       Document,
       Paragraph,
       Text,
       Gapcursor,
+      Image.configure({
+        allowBase64: true,
+      }),
       // Table.configure({
       //   resizable: true,
       // }),
@@ -439,7 +359,7 @@ function Tiptap(props: TiptapProps) {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    if(userID === "") {
+    if (userID === "") {
       alert("Please log in first");
       router.push("/login");
     }
@@ -449,7 +369,7 @@ function Tiptap(props: TiptapProps) {
     const title = blogTitle;
 
     // // const cover = "https://source.unsplash.com/8xznAGy4HcY/800x400"; // TODO: real cover?
-    const cover = `https://source.unsplash.com/random/800x400/?code&${short_id}`
+    const cover = `https://source.unsplash.com/random/800x400/?code&${short_id}`;
     const content = editor?.getHTML() ?? "";
     const insertParams = new URLSearchParams();
     insertParams.append("author", userID);
@@ -470,7 +390,10 @@ function Tiptap(props: TiptapProps) {
       const insertParams = new URLSearchParams();
       insertParams.append("blogId", insertedBlogId);
       topicIDs.forEach((t) => insertParams.append("topicIds", t.toString()));
-      const insertTopicResponse = await httpGet("insert-blog-topic", insertParams);
+      const insertTopicResponse = await httpGet(
+        "insert-blog-topic",
+        insertParams
+      );
 
       if (!insertTopicResponse.ok) {
         alert(insertTopicResponse.error);

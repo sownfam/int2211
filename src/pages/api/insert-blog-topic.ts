@@ -19,6 +19,7 @@ export default async function handler(
   }
   let _topicIds: string[] = [];
   if (!Array.isArray(topicIds)) _topicIds = [topicIds];
+  else _topicIds = topicIds;
 
   try {
     const result = await insertBlogTopic(parseInt(blogId), _topicIds.map((t) => parseInt(t)));
@@ -29,7 +30,7 @@ export default async function handler(
      * Since `insertId` is of type `bigint`, it causes explosion when parsing JSON
      * => We need a bignum JSON parsing (we already did it with TEIKI????) (or just leave it!)
      */
-    console.log("RESULT AFTER INSERT: ", result);
+    console.log("RESULT AFTER INSERT BLOG TOPIC: ", result);
 
     res.status(200).json({ response: result, ok: true });
   } catch (error) {
