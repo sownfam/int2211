@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil";
 async function getData() {
   const { userID } = useRecoilValue(userAuth);
   console.log("???? UID: ", userID);
-  const fetchResponse = await fetch(`http://localhost:3000/api/query-user-posts?userID=${userID}`, {cache: 'no-cache'});
+  const fetchResponse = await fetch(`http://localhost:3000/api/query-user-posts?userID=${userID}`, {cache: 'no-store'});
   const body = await fetchResponse.text();
   const queryPostsResponse = JSON.parse(body);
   console.log("All Posts response: ", queryPostsResponse.posts[0]);
@@ -17,7 +17,6 @@ async function getData() {
     const categories = topic;
     return {categories, ...others};
   })
-  console.log("HEHE: ", realPosts);
   return realPosts;
 }
 
