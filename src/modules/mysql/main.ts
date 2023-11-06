@@ -109,7 +109,7 @@ export async function queryUserPosts(userID: string) {
     let message = 'Unknown Error'
     if (error instanceof Error) message = error.message;
     throw new Error(message);
-  }
+  } 
 }
 
 export async function queryBlogContent(slug: string) {
@@ -125,3 +125,59 @@ export async function queryBlogContent(slug: string) {
     throw new Error(message);
   }
 }
+
+export async function queryBlogID(slug: string) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const ret = await connection.query('SELECT id FROM blog WHERE slug = ?', [slug]);
+    connection.destroy();
+    
+    if (Array.isArray(ret[0]) && ret[0].length === 1) {
+      const row = ret[0][0] as { id: number };
+      return row.id;
+    }
+    
+    return null;
+  } catch (error) {
+    let message = 'Unknown Error';
+    if (error instanceof Error) message = error.message;
+    throw new Error(message);
+  }
+}
+
+
+export async function insertComment(blogId: number, content: string, userId: string) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const ret = await connection.query(
+      'INSERT INTO comment(`blogID`, `content`, `userID`) VALUES (?, ?, ?)',
+      [blogId, content, userId]
+    );
+    connection.destroy();
+    return ret;
+  } catch (error) {
+    let message = 'Unknown Error';
+    if (error instanceof Error) message = error.message;
+    throw new Error(message);
+  }
+}
+
+export async function queryBlogComments(blogId: number) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const ret = await connection.query(
+      'SELECT commentID, content, userID FROM comment WHERE blogID = ?',
+      [blogId]
+    );
+    connection.destroy();
+    return ret;
+  } catch (error) {
+    let message = 'Unknown Error';
+    if (error instanceof Error) message = error.message;
+    throw new Error(message);
+  }
+}
+

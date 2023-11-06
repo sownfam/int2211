@@ -14,6 +14,7 @@ async function getData() {
   const fetchResponse = await fetch("http://localhost:3000/api/query-all-posts", {cache: 'no-store'});
   const body = await fetchResponse.text();
   const queryPostsResponse = JSON.parse(body);
+  console.log("run into");
   console.log("All Posts response: ", queryPostsResponse.posts[0]);
   const allPosts = queryPostsResponse.posts[0] as any[];
   const realPosts: Post[] = allPosts.map(({topic, ...others}) => {
