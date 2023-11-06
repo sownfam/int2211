@@ -56,5 +56,6 @@ create table `comment` (
    `content` text, 
    `userID` varchar(50) not null 
    primary key (`commentID`),
+   foreign key (`blogID`) references blog(`id`),
    foreign key (`userID`) references user(`userID`)
 )
