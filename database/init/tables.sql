@@ -47,3 +47,14 @@ create table `blog_topic` (
   foreign key (`blogID`) references blog(`id`),
   foreign key (`topicID`) references topic(`topicID`)
 );
+
+drop table if exists comment;
+
+create table `comment` (
+   `commentID` int not null AUTO_INCREMENT,
+   `blogID` int not null,
+   `content` text, 
+   `userID` varchar(50) not null 
+   primary key (`commentID`),
+   foreign key (`userID`) references user(`userID`)
+)
