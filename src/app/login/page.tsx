@@ -33,8 +33,12 @@ export default function Login() {
           username: insertResponse.response.info[0].username,
           userID: insertResponse.response.info[0].userID,
         });
+        window.localStorage.setItem("blog-username", insertResponse.response.info[0].username);
+        window.localStorage.setItem("blog-userID", insertResponse.response.info[0].userID);
       } else {
         setUserInfo({ username, userID });
+        window.localStorage.setItem("blog-username", username);
+        window.localStorage.setItem("blog-userID", userID);
       }
     }
   };
