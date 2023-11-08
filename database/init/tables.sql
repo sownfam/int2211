@@ -54,8 +54,8 @@ create table `comment` (
    `commentID` int not null AUTO_INCREMENT,
    `blogID` int not null,
    `content` text, 
-   `userID` varchar(50) not null 
+   `userID` varchar(50) not null,
    primary key (`commentID`),
    foreign key (`blogID`) references blog(`id`),
    foreign key (`userID`) references user(`userID`)
-)
+);

@@ -116,7 +116,7 @@ export async function queryBlogContent(slug: string) {
   let connection;
   try {
     connection = await pool.getConnection();
-    const ret = await connection.query('select content from blog where slug = ?', [slug]);
+    const ret = await connection.query('select content, blog.id from blog where slug = ?', [slug]);
     connection.destroy();
     return ret;
   } catch (error) {
@@ -181,3 +181,22 @@ export async function queryBlogComments(blogId: number) {
   }
 }
 
+export async function queryBlogCommentsFromSlug(slug: string) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const ret = await connection.query(
+      `SELECT c.commentID, c.content, u.username
+        FROM comment c INNER JOIN blog b on c.blogID = b.id
+          INNER JOIN user u ON c.userID = u.userID
+        WHERE b.slug = ?`,
+      [slug]
+    );
+    connection.destroy();
+    return ret;
+  } catch (error) {
+    let message = 'Unknown Error';
+    if (error instanceof Error) message = error.message;
+    throw new Error(message);
+  }
+}
