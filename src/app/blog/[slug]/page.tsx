@@ -1,4 +1,5 @@
 "use client";
+import "@/styles/custom.css";
 import Flex from "@/components/flex";
 import { httpGet } from "@/modules/next-backend-client/client";
 import { userAuth } from "@/states/user";
@@ -33,8 +34,8 @@ async function getBlogComments(slug: string) {
   const body = await response.text();
   const data = JSON.parse(body);
   console.log("All comments: ", data.comments[0].map((x: any) => x.content));
-  // return data.posts[0];
-  return data.comments[0].map((x: any) => x.content);
+  return data.comments[0];
+  // return data.comments[0].map((x: any) => x.content);
 }
 
 export default function BlogContent({
@@ -46,11 +47,17 @@ export default function BlogContent({
   const [userComment, setUserComment] = React.useState<string>("");
   const [value, setValue] = React.useState<string>("");
   const [blogID, setBlogID] = React.useState<string>("");
-  const [allComments, setAllComments] = React.useState<string[]>([]);
+  const [allComments, setAllComments] = React.useState<
+    {commentID: BigInteger;
+    content: string;
+    username: string;}[]>([]);
   React.useEffect(() => {
     async function getData() {
       const { value, blogID } = await getBlogContent(slug);
-      const allComments = await getBlogComments(slug);
+      const allComments:{
+        commentID: BigInteger;
+        content: string;
+        username: string;}[] = await getBlogComments(slug);
       setValue(value);
       setBlogID(blogID);
       setAllComments(allComments);
@@ -80,27 +87,46 @@ export default function BlogContent({
 
   return (
     <Flex.Col gap="36px">
-      <div dangerouslySetInnerHTML={{ __html: value }}></div>
-      <Flex.Col className="w-full" gap="12px">
-        {allComments.length === 0 ? (
-          <div>Be the First to comment!</div>
-        ) : (
-          allComments.map((cmt) => <div>{cmt}</div>)
-        )}
+      <div dangerouslySetInnerHTML={{ __html: value }}
+       style={{
+        backgroundColor: "floralwhite",
+        padding: "20px",
+       }} 
+       className="rounded-lg blog-content text-justify text-slate-950 text-lg"
+      >
+      </div>
+
+      <Flex.Col>
         <textarea
-          className="w-full bg-zinc-200 px-2"
-          placeholder="Place your comment here"
-          // value={userComment}
-          onChange={(e) => setUserComment(e.target.value)}
-        />
-        <div>
-          <button
-            className="bg-amber-200 px-2 py-2 rounded-lg font-bold"
-            onClick={insertComment}
-          >
-            Comment
-          </button>
-        </div>
+            className="w-full bg-zinc-200 px-2 rounded-lg text-slate-950"
+            placeholder="Place your comment here"
+            // value={userComment}
+            onChange={(e) => setUserComment(e.target.value)}
+          />
+          <div style={{
+            marginTop: "5px",
+          }}>
+            <button
+              className="bg-cyan-300 px-2 py-2 rounded-lg font-bold"
+              onClick={insertComment}
+            >
+              Comment
+            </button>
+          </div>
+      </Flex.Col>
+
+      <Flex.Col className="w-full bg-slate-300 rounded-lg text-slate-950" gap="12px">
+        {allComments.length === 0 ? (
+          <div style={{padding:"5px"}}>Be the First to comment!</div>
+        ) : (
+          allComments.map((cmt) =>
+          <div style={{
+            padding: "0px 10px",
+          }}>
+            <div className="font-bold">{cmt.username}</div>
+            <div>{cmt.content}</div>
+          </div>)
+        )}
       </Flex.Col>
     </Flex.Col>
   );
