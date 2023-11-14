@@ -1,6 +1,17 @@
 import { insertUser } from "@/modules/mysql/main";
 import { NextApiRequest, NextApiResponse } from "next";
+import * as bcrypt from "bcrypt";
+import { SYSTEM_ENTRYPOINTS } from "next/dist/shared/lib/constants";
 
+export async function comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(plainPassword, hashedPassword);
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  return hashedPassword;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,7 +35,13 @@ export default async function handler(
   }
 
   try {
-    const result = await insertUser(username, password, userID);
+    const hashedPassword = await hashPassword(password);
+    console.log(hashedPassword + " " + hashedPassword.length);
+    if(await comparePasswords(password, hashedPassword) == false) {
+      res.status(500).json({ error: "Something wrong when compare passwords", ok: false });
+      return;
+    }
+    const result = await insertUser(username, hashedPassword, userID);
 
     /**
      * The `result` here has the following format:
@@ -40,3 +57,4 @@ export default async function handler(
     res.status(500).json({ error: "Something wrong when insert user into database" });
   }
 }
+

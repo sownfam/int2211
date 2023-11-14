@@ -21,7 +21,7 @@ drop table if exists user;
 create table `user` (
   `userID` varchar(50) not null,
   `username` varchar(50) not null,
-  `password` varchar(50) not null,
+  `password` varchar(100) not null,
   primary key (`userID`)
 );
 
@@ -35,7 +35,7 @@ create table `blog` (
   `content` text,
   `author` varchar(50) not null,
   primary key (`id`),
-  foreign key(`author`) references user(`userID`)
+  foreign key(`author`) references user(`userID`) on update cascade on delete cascade
 );
 
 drop table if exists blog_topic;
@@ -44,8 +44,8 @@ create table `blog_topic` (
   `blogID` int not null,
   `topicID` int not null,
   primary key (`blogID`, `topicID`),
-  foreign key (`blogID`) references blog(`id`),
-  foreign key (`topicID`) references topic(`topicID`)
+  foreign key (`blogID`) references blog(`id`) on update cascade on delete cascade,
+  foreign key (`topicID`) references topic(`topicID`) on update cascade on delete cascade
 );
 
 drop table if exists comment;
@@ -56,6 +56,6 @@ create table `comment` (
    `content` text, 
    `userID` varchar(50) not null,
    primary key (`commentID`),
-   foreign key (`blogID`) references blog(`id`),
-   foreign key (`userID`) references user(`userID`)
+   foreign key (`blogID`) references blog(`id`) on update cascade on delete cascade,
+   foreign key (`userID`) references user(`userID`) on update cascade on delete cascade
 );
